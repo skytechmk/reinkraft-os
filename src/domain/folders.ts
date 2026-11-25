@@ -20,16 +20,16 @@ export interface FolderDef { id: FolderId; subfolders: SubfolderDef[] }
 
 export const FOLDERS: FolderDef[] = [
   { id: 'RAW', subfolders: [
-    { id: 'PROFILES', units: ['BAR', 'M'] },
-    { id: 'BEAMS', units: ['BAR', 'M'] },
-    { id: 'SHEETS', units: ['SHEET', 'M2', 'KG'] },
-    { id: 'ROOFING', units: ['M2', 'M', 'SHEET'] },
+    { id: 'PROFILES', units: ['BAR', 'M', 'CM'] },
+    { id: 'BEAMS', units: ['BAR', 'M', 'CM'] },
+    { id: 'SHEETS', units: ['SHEET', 'M2', 'KG', 'CM'] },
+    { id: 'ROOFING', units: ['M2', 'M', 'CM', 'SHEET'] },
     { id: 'LEXAN', units: ['SHEET', 'M2'] },
     { id: 'REMNANTS', units: ['PCS'] },
   ] },
   { id: 'HARDWARE', subfolders: [
     { id: 'GATES', units: ['PCS'] },
-    { id: 'SLIDING', units: ['PCS', 'M'] },
+    { id: 'SLIDING', units: ['PCS', 'M', 'CM'] },
     { id: 'CAPS', units: ['PCS'] },
     { id: 'FASTENERS', units: ['PCS', 'BOX'] },
   ] },
@@ -47,7 +47,7 @@ export const FOLDERS: FolderDef[] = [
     { id: 'TIG', units: ['KG', 'L', 'PCS'], processes: ['TIG_DC', 'TIG_ACDC'] },
     { id: 'MMA', units: ['KG', 'BOX', 'PCS'], processes: ['MMA'] },
     { id: 'PLASMA', units: ['PCS'], processes: ['PLASMA'] },
-    { id: 'LASER', units: ['PCS', 'L', 'M'], processes: ['LASER'] },
+    { id: 'LASER', units: ['PCS', 'L', 'M', 'CM'], processes: ['LASER'] },
   ] },
 ];
 

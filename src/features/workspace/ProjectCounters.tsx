@@ -10,6 +10,7 @@ import { PROCESSES, PROCESS_LABELS, isItemVisible, isLow } from '../../domain/fo
 import { canSupplyWeld, weldConsumption } from '../../domain/weld';
 import { convertQty, fmtLengthMm, fmtShown, weldCm } from '../../domain/measure';
 import { fmtNum, stepFor } from '../../domain/units';
+import { NumberEntry } from '../../components/NumberEntry';
 import { unitName } from '../../i18n/core';
 import { Plate } from '../../components/Plate';
 import { OffcutPicker } from '../remnants/OffcutPicker';
@@ -155,12 +156,12 @@ function DailyRows({ logs, items, lg, consumed }: { logs: LogRow[]; items: Inven
   return (
     <Plate title={t('workbench.daily')} flush>
       <Counter title={t('workbench.workingHours')} sub={t(lg.rate ? 'workbench.perTapHours' : 'workbench.perTapHoursNoRate')} value={hours} unit={t('workbench.unitH')}
-        canPlus canMinus={lg.canUndo(isLabour)} onPlus={() => lg.log(null, 0.5)} onMinus={() => lg.undo(isLabour)} />
+        canPlus canMinus={lg.canUndo(isLabour)} onPlus={() => lg.log(null, 0.5)} onMinus={() => lg.undo(isLabour)} onAdd={(h) => lg.log(null, h)} />
       {settings?.weld_rate_enabled && <WeldRow logs={logs} lg={lg} />}
       {settings?.saw_rate_enabled && (() => {
         const isSaw = (l: LogRow) => l.log_category === 'SAW_CUT';
         const cuts = logs.filter(isSaw).reduce((s, l) => s + l.qty_delta, 0);
-        return <Counter title={t('workbench.sawCuts')} sub={t('workbench.sawPerTap')} value={cuts} canPlus canMinus={lg.canUndo(isSaw)} onPlus={() => lg.logSaw(1)} onMinus={() => lg.undo(isSaw)} />;
+        return <Counter title={t('workbench.sawCuts')} sub={t('workbench.sawPerTap')} value={cuts} canPlus canMinus={lg.canUndo(isSaw)} onPlus={() => lg.logSaw(1)} onMinus={() => lg.undo(isSaw)} onAdd={(n) => lg.logSaw(Math.round(n))} />;
       })()}
       {items.map((i) => <ItemRow key={i.id} item={i} logs={logs} lg={lg} consumed={consumed} />)}
       {!items.length && <p className="p-4 text-sm text-mute">{t('workbench.addConsumablesHint')}</p>}
@@ -193,6 +194,10 @@ function WeldRow({ logs, lg }: { logs: LogRow[]; lg: Logging }) {
       canMinus={lg.canUndo(isWeld)}
       onPlus={() => process && lg.logWeld(process, WELD_STEP_CM)}
       onMinus={() => lg.undo(isWeld)}
+      onAdd={(shownLen) => {
+        const cm = Math.round((shownLen / weldCm(1).value) * 10) / 10;
+        if (process && cm > 0 && canSupplyWeld(weldConsumption(preset, cm, lg.itemMap), lg.itemMap)) lg.logWeld(process, cm);
+      }}
       extra={(
         <div>
           <div className="flex flex-wrap gap-2" role="group" aria-label={t('workbench.process')}>
@@ -227,6 +232,11 @@ function ItemRow({ item: i, logs, lg, consumed }: { item: InventoryItem; logs: L
       canMinus={lg.canUndo(forItem) && !(i.standard_length_mm && lg.saving)}
       onPlus={() => lg.log(i, stepFor(i.unit_label))}
       onMinus={() => lg.undo(forItem)}
+      onAdd={(shownQty) => {
+        const perStored = convertQty(1000, i.unit_label).value / 1000 || 1;
+        const qty = Math.round((shownQty / perStored) * 1000) / 1000;
+        if (qty > 0 && qty <= i.qty_on_hand) lg.log(i, qty);
+      }}
     />
   );
 }
@@ -299,8 +309,9 @@ function UndoRemnantBar({ logs, items, lg, minOffcut }: { logs: LogRow[]; items:
   );
 }
 
-function Counter(p: { title: string; sub?: string; low?: boolean; value: number; unit?: string; canPlus: boolean; canMinus: boolean; onPlus: () => void; onMinus: () => void; extra?: ReactNode }) {
+function Counter(p: { title: string; sub?: string; low?: boolean; value: number; unit?: string; canPlus: boolean; canMinus: boolean; onPlus: () => void; onMinus: () => void; extra?: ReactNode; /** type an amount to add, in the shown unit */ onAdd?: (amount: number) => void }) {
   const { t } = useI18n();
+  const [typing, setTyping] = useState(false);
   return (
     <div className="border-b border-rule px-4 py-3 last:border-0">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
@@ -310,10 +321,21 @@ function Counter(p: { title: string; sub?: string; low?: boolean; value: number;
         </div>
         <div className="flex shrink-0 items-center justify-between gap-2 sm:justify-end">
           <button className={`${btn} min-h-[56px] min-w-[56px] text-2xl`} disabled={!p.canMinus} onClick={p.onMinus} aria-label={t('workbench.undoLastOf', { name: p.title })}>−</button>
-          <output className="num min-w-[96px] text-center text-5xl text-signal" aria-label={t('workbench.used', { name: p.title })}>
+          {typing && p.onAdd ? (
+            <NumberEntry initial="" label={t('workbench.typeAmount', { name: p.title })} className="w-[120px]" onCommit={(n) => { setTyping(false); if (n > 0) p.onAdd?.(n); }} onCancel={() => setTyping(false)} />
+          ) : p.onAdd ? (
+            <button type="button" className="min-h-[56px] rounded-[3px] px-1 hover:bg-raised" onClick={() => setTyping(true)} aria-label={t('workbench.typeAmount', { name: p.title })}>
+              <output className="num block min-w-[96px] text-center text-5xl text-signal" aria-label={t('workbench.used', { name: p.title })}>
+                {fmtNum(Number(p.value.toFixed(2)))}
+                {p.unit && <span className="ml-1 font-sans text-sm font-medium text-mute">{p.unit}</span>}
+              </output>
+            </button>
+          ) : (
+            <output className="num min-w-[96px] text-center text-5xl text-signal" aria-label={t('workbench.used', { name: p.title })}>
             {fmtNum(Number(p.value.toFixed(2)))}
             {p.unit && <span className="ml-1 font-sans text-sm font-medium text-mute">{p.unit}</span>}
           </output>
+          )}
           <button className={`${btn} min-h-[56px] min-w-[56px] text-2xl`} disabled={!p.canPlus} onClick={p.onPlus} aria-label={t('workbench.addOneStep', { name: p.title })}>+</button>
         </div>
       </div>

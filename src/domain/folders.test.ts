@@ -6,7 +6,7 @@ const base = { process_tags: [] as never[] };
 describe('inventory folders', () => {
   it('has the five folders of the blueprint, with the units it lists', () => {
     expect(FOLDERS.map((f) => f.id)).toEqual(['RAW', 'HARDWARE', 'ABRASIVES', 'CHEMICAL', 'WELDING']);
-    expect(findSubfolder('RAW', 'PROFILES')?.units).toEqual(['BAR', 'M']);
+    expect(findSubfolder('RAW', 'PROFILES')?.units).toEqual(['BAR', 'M', 'CM']);
     expect(findSubfolder('RAW', 'REMNANTS')?.units).toEqual(['PCS']);
     expect(findSubfolder('CHEMICAL', 'THINNERS')?.units).toEqual(['L', 'ML', 'PCS']);
   });

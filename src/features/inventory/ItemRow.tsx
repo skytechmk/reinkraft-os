@@ -66,7 +66,7 @@ export function ItemRow({ item: i, currency }: { item: InventoryItem; currency: 
         <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-mute">
           {!i.is_remnant && <span>{t('inventory.alertAt', { qty: fmtQty(i.min_alert_qty, i.unit_label) })}</span>}
           <span>
-            {t('inventory.lastPrice', { price: fmtMoney(i.last_buy_price, currency) + (i.unit_label === 'M' || i.unit_label === 'ML' ? ` / ${unitLabel(i.unit_label)}` : '') })}
+            {t('inventory.lastPrice', { price: fmtMoney(i.last_buy_price, currency) + (i.unit_label === 'M' || i.unit_label === 'CM' || i.unit_label === 'ML' ? ` / ${unitLabel(i.unit_label)}` : '') })}
             {trend && <span className={trend === 'up' ? 'text-crit' : 'text-ok'}> {trend === 'up' ? '▲' : '▼'} {t('inventory.was', { price: fmtMoney(i.prev_buy_price as number, currency) })}</span>}
           </span>
           {i.weight_kg_per_m && <span>{fmtWeightPerM(i.weight_kg_per_m)}</span>}

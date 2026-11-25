@@ -27,6 +27,7 @@ export const fmtShown = (s: Shown): string =>
 export function convertQty(n: number, unit: string): Shown {
   if (active === 'IMPERIAL') {
     if (unit === 'M') return { value: trim(n / M_PER_FT), unit: 'FT' };
+    if (unit === 'CM') return { value: trim(n / 2.54, 1), unit: 'IN' };
     if (unit === 'M2') return { value: trim(n * FT2_PER_M2), unit: 'FT2' };
     if (unit === 'KG') return { value: trim(n / KG_PER_LB), unit: 'LB' };
     if (unit === 'L') return { value: trim(n / L_PER_GAL), unit: 'GAL' };

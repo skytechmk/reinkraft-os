@@ -7,6 +7,7 @@ export function stepFor(unit: Unit): number {
   switch (unit) {
     case 'SHEET': return 0.25;   // +1/4 sheet
     case 'M': return 0.5;        // +0.5 m
+    case 'CM': return 5;         // +5 cm
     case 'ML': return 100;
     case 'M2': return 0.5;
     case 'KG': return 0.5;

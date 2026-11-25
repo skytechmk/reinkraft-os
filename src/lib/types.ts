@@ -1,6 +1,6 @@
 import type { ProcessConfig } from '../domain/weld';
 
-export type Unit = 'PCS' | 'BAR' | 'SHEET' | 'ML' | 'M' | 'BOX' | 'M2' | 'KG' | 'L';
+export type Unit = 'PCS' | 'BAR' | 'SHEET' | 'ML' | 'M' | 'CM' | 'BOX' | 'M2' | 'KG' | 'L';
 export type ProcessCode = 'MIG' | 'MAG' | 'TIG_DC' | 'TIG_ACDC' | 'PULSE' | 'MMA' | 'PLASMA' | 'LASER';
 export type FolderId = 'RAW' | 'HARDWARE' | 'ABRASIVES' | 'CHEMICAL' | 'WELDING';
 
