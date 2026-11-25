@@ -42,7 +42,7 @@ export function AddItemForm() {
   const subs = useMemo(() => (folderDef?.subfolders ?? []).filter((s) => s.id !== 'REMNANTS' && isSubfolderVisible(s, enabled)), [folderDef, enabled]);
   const subDef = findSubfolder(folder, sub);
   const standard = catalogFor(folder, sub);
-  const isProfile = folder === 'RAW' && sub === 'PROFILES';
+  const isProfile = folder === 'RAW' && (sub === 'PROFILES' || sub === 'BEAMS');
 
   const pickFolder = (f: FolderId) => {
     const first = FOLDERS.find((x) => x.id === f)?.subfolders.find((s) => s.id !== 'REMNANTS' && isSubfolderVisible(s, enabled));

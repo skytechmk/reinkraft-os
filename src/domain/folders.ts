@@ -21,6 +21,7 @@ export interface FolderDef { id: FolderId; subfolders: SubfolderDef[] }
 export const FOLDERS: FolderDef[] = [
   { id: 'RAW', subfolders: [
     { id: 'PROFILES', units: ['BAR', 'M'] },
+    { id: 'BEAMS', units: ['BAR', 'M'] },
     { id: 'SHEETS', units: ['SHEET', 'M2', 'KG'] },
     { id: 'ROOFING', units: ['M2', 'M', 'SHEET'] },
     { id: 'LEXAN', units: ['SHEET', 'M2'] },
@@ -72,7 +73,7 @@ export function isItemVisible(item: Pick<InventoryItem, 'folder' | 'subfolder' |
 
 /** The legacy item_type column the database still requires, chosen from the folder. */
 export function itemTypeFor(folder: FolderId, subfolder: string): InventoryItem['item_type'] {
-  if (folder === 'RAW') return subfolder === 'PROFILES' || subfolder === 'REMNANTS' ? 'PROFILE' : 'SHEET';
+  if (folder === 'RAW') return subfolder === 'PROFILES' || subfolder === 'BEAMS' || subfolder === 'REMNANTS' ? 'PROFILE' : 'SHEET';
   if (folder === 'CHEMICAL') return 'CHEMICAL';
   if (folder === 'ABRASIVES' || folder === 'WELDING') return 'CONSUMABLE';
   return 'CUSTOM';

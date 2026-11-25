@@ -21,6 +21,16 @@ const bar = (en: string, mk: string, grade?: string, len: 3000 | 6000 = 6000): C
 const item = (en: string, mk: string, unit: Unit, extra: Partial<CatalogItem> = {}): CatalogItem => ({ en, mk, unit, ...extra });
 
 export const CATALOG: Record<string, CatalogItem[]> = {
+  'RAW/BEAMS': [
+    bar('UNP 100', 'УНП 100', 'S235'),
+    bar('UNP 140', 'УНП 140', 'S235'),
+    bar('IPE 100', 'ИПЕ 100', 'S235'),
+    bar('IPE 160', 'ИПЕ 160', 'S235'),
+    bar('HEA 140', 'ХЕА 140', 'S235'),
+    bar('UNP 200', 'УНП 200', 'S235'),
+    bar('IPE 200', 'ИПЕ 200', 'S235'),
+    bar('HEA 200', 'ХЕА 200', 'S235'),
+  ],
   'RAW/PROFILES': [
     bar('Square tube 20x20x2', 'Квадратна цевка 20x20x2', 'S235'),
     bar('Square tube 40x40x2', 'Квадратна цевка 40x40x2', 'S235'),
@@ -33,11 +43,6 @@ export const CATALOG: Record<string, CatalogItem[]> = {
     bar('Flat bar 40x8', 'Флах челик 40x8', 'S235'),
     bar('Angle 40x40x4', 'Аголник 40x40x4', 'S235'),
     bar('Angle 50x50x5', 'Аголник 50x50x5', 'S235'),
-    bar('UNP 100', 'УНП 100', 'S235'),
-    bar('UNP 140', 'УНП 140', 'S235'),
-    bar('IPE 100', 'ИПЕ 100', 'S235'),
-    bar('IPE 160', 'ИПЕ 160', 'S235'),
-    bar('HEA 140', 'ХЕА 140', 'S235'),
     bar('Solid round bar 12 mm', 'Полна шипка 12 мм', 'S235'),
     bar('Solid square bar 12x12', 'Полна квадратна шипка 12x12', 'S235'),
     bar('Galvanized square tube 40x40x2', 'Поцинкувана квадратна цевка 40x40x2', 'Galv', 6000),
