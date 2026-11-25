@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { enqueue } from '../../lib/offlineQueue';
-import { newOpId } from '../../lib/supabase';
+import { newOpId, supabase } from '../../lib/supabase';
 import { optimisticLog, optimisticUndo, optimisticWeld, isTemp } from '../../lib/optimistic';
 import { useSettings } from '../../lib/api';
-import type { InventoryItem, LogRow, Project, ProcessCode } from '../../lib/types';
+import type { InventoryItem, LogRow, Project, ProcessCode, Settings } from '../../lib/types';
 import { categoryFor } from '../../domain/categories';
 import { PROCESSES, PROCESS_LABELS, isItemVisible, isLow } from '../../domain/folders';
 import { canSupplyWeld, weldConsumption } from '../../domain/weld';
 import { convertQty, fmtLengthMm, fmtShown, weldCm } from '../../domain/measure';
 import { fmtNum, stepFor } from '../../domain/units';
 import { NumberEntry } from '../../components/NumberEntry';
+import { Stepper } from '../../components/Stepper';
 import { unitName } from '../../i18n/core';
 import { Plate } from '../../components/Plate';
 import { OffcutPicker } from '../remnants/OffcutPicker';
@@ -153,16 +154,40 @@ function DailyRows({ logs, items, lg, consumed }: { logs: LogRow[]; items: Inven
   const settings = useSettings().data;
   const hours = logs.filter((l) => l.log_category === 'LABOR').reduce((s, l) => s + l.qty_delta, 0);
   const isLabour = (l: LogRow) => l.log_category === 'LABOR';
+  const qc = useQueryClient();
+  /** Saves one setting from the bench. The cache is updated first so the row appears at once. */
+  const saveSetting = async (patch: Partial<Settings>) => {
+    if (!settings) return;
+    qc.setQueryData<Settings>(['settings'], (old) => (old ? { ...old, ...patch } : old));
+    const { error } = await supabase.from('company_settings').update(patch).eq('company_id', settings.company_id);
+    if (error) void qc.invalidateQueries({ queryKey: ['settings'] });
+  };
   return (
     <Plate title={t('workbench.daily')} flush>
       <Counter title={t('workbench.workingHours')} sub={t(lg.rate ? 'workbench.perTapHours' : 'workbench.perTapHoursNoRate')} value={hours} unit={t('workbench.unitH')}
         canPlus canMinus={lg.canUndo(isLabour)} onPlus={() => lg.log(null, 0.5)} onMinus={() => lg.undo(isLabour)} onAdd={(h) => lg.log(null, h)} />
       {settings?.weld_rate_enabled && <WeldRow logs={logs} lg={lg} />}
-      {settings?.saw_rate_enabled && (() => {
+      {settings && (settings.saw_rate_enabled ? (() => {
         const isSaw = (l: LogRow) => l.log_category === 'SAW_CUT';
         const cuts = logs.filter(isSaw).reduce((s, l) => s + l.qty_delta, 0);
-        return <Counter title={t('workbench.sawCuts')} sub={t('workbench.sawPerTap')} value={cuts} canPlus canMinus={lg.canUndo(isSaw)} onPlus={() => lg.logSaw(1)} onMinus={() => lg.undo(isSaw)} onAdd={(n) => lg.logSaw(Math.round(n))} />;
-      })()}
+        return (
+          <Counter title={t('workbench.sawCuts')} sub={t('workbench.sawPerTap')} value={cuts} canPlus canMinus={lg.canUndo(isSaw)} onPlus={() => lg.logSaw(1)} onMinus={() => lg.undo(isSaw)} onAdd={(n) => lg.logSaw(Math.round(n))}
+            extra={(
+              <div>
+                <p className="mb-1 text-sm text-mute">{t('workbench.sawRate')}</p>
+                <Stepper value={settings.saw_cut_rate ?? 0} step={settings.currency === 'MKD' ? 10 : 0.5} unit={settings.currency} onChange={(v) => void saveSetting({ saw_cut_rate: v })} />
+              </div>
+            )} />
+        );
+      })() : (
+        <div className="flex items-center justify-between gap-3 border-b border-rule px-4 py-3">
+          <div className="min-w-0">
+            <p className="text-lg font-semibold">{t('workbench.sawCuts')}</p>
+            <p className="text-sm text-mute">{t('workbench.sawOff')}</p>
+          </div>
+          <button type="button" className={btn} onClick={() => void saveSetting({ saw_rate_enabled: true })}>{t('workbench.sawTurnOn')}</button>
+        </div>
+      ))}
       {items.map((i) => <ItemRow key={i.id} item={i} logs={logs} lg={lg} consumed={consumed} />)}
       {!items.length && <p className="p-4 text-sm text-mute">{t('workbench.addConsumablesHint')}</p>}
     </Plate>

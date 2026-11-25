@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { InventoryItem, LogRow, Project } from '../../lib/types';
 
@@ -295,6 +295,17 @@ describe('weld length and saw cuts (billing rates from Settings)', () => {
       show([], WITH);
       expect(screen.getByLabelText('Add one step of Weld length')).toBeTruthy();
       expect(screen.queryByLabelText('Add one step of Saw cuts')).toBeNull();
+    });
+
+    it('offers a Turn on button in place of the counter, and shows the rate once cuts are on', () => {
+      settingsData = { ...settingsData, saw_rate_enabled: false };
+      show([], WITH);
+      expect(screen.getByRole('button', { name: 'Turn on' })).toBeTruthy();
+      cleanup();
+      settingsData = { ...settingsData, saw_rate_enabled: true, saw_cut_rate: 50 };
+      show([], WITH);
+      expect(screen.getByText('Rate per cut')).toBeTruthy();
+      expect(screen.queryByRole('button', { name: 'Turn on' })).toBeNull();
     });
   });
 });

@@ -83,7 +83,10 @@ export const en = {
   'workbench.weldUses': 'Uses {parts} per tap',
   'workbench.weldShort': 'Not enough wire or gas in stock for this weld.',
   'workbench.sawCuts': 'Saw cuts',
-  'workbench.sawPerTap': '+1 per tap',
+  'workbench.sawPerTap': '+1 per cut',
+  'workbench.sawRate': 'Rate per cut',
+  'workbench.sawOff': 'Cutting counts are off. Turn them on to count cuts and bill a rate per cut.',
+  'workbench.sawTurnOn': 'Turn on',
 } as const;
 
 export const mk: Record<keyof typeof en, string> = {
@@ -165,5 +168,8 @@ export const mk: Record<keyof typeof en, string> = {
   'workbench.weldUses': 'Користи {parts} по допир',
   'workbench.weldShort': 'Нема доволно жица или гас на залиха за овој завар.',
   'workbench.sawCuts': 'Сечења со пила',
-  'workbench.sawPerTap': '+1 по допир',
+  'workbench.sawPerTap': '+1 по сечење',
+  'workbench.sawRate': 'Цена по сечење',
+  'workbench.sawOff': 'Бројањето сечења е исклучено. Вклучете го за да ги броите сечењата и да наплатувате цена по сечење.',
+  'workbench.sawTurnOn': 'Вклучи',
 };
