@@ -1,0 +1,36 @@
+// Words used across the app. Keys are namespaced ("common.*", "due.*").
+export const en = {
+  'common.loading': 'Loading…',
+  'common.close': 'Close',
+  'common.cancel': 'Cancel',
+  'common.save': 'Save',
+  'common.saved': 'Saved',
+  'common.delete': 'Delete',
+  'common.add': 'Add',
+  'common.undo': 'Undo',
+  'common.search': 'Search',
+  'common.today': 'Today',
+  'common.client': 'Client',
+  'common.none': 'None',
+  'due.overdue': '{n} d overdue',
+  'due.today': 'due today',
+  'due.in': 'due in {n} d',
+} as const;
+
+export const mk: Record<keyof typeof en, string> = {
+  'common.loading': 'Се вчитува…',
+  'common.close': 'Затвори',
+  'common.cancel': 'Откажи',
+  'common.save': 'Зачувај',
+  'common.saved': 'Зачувано',
+  'common.delete': 'Избриши',
+  'common.add': 'Додај',
+  'common.undo': 'Врати',
+  'common.search': 'Пребарај',
+  'common.today': 'Денес',
+  'common.client': 'Клиент',
+  'common.none': 'Нема',
+  'due.overdue': 'доцни {n} д',
+  'due.today': 'рок денес',
+  'due.in': 'рок за {n} д',
+};

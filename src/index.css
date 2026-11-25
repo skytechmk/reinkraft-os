@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=Fira+Sans+Extra+Condensed:wght@700;800;900&family=Fira+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-display: 'Big Shoulders Display', 'Fira Sans Extra Condensed', 'Arial Narrow', Impact, sans-serif;  /* Cyrillic falls back per glyph */
+  --font-sans: 'Barlow', 'Fira Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;  /* has Cyrillic */
+  --color-ink: #121214;       /* page */
+  --color-plate: #1E1E22;     /* panels */
+  --color-deck: #17171A;      /* panel title bars */
+  --color-raised: #26262C;    /* buttons, inputs, chips */
+  --color-rule: #2E2E35;      /* hairlines */
+  --color-mute: #8E8E99;
+  --color-bone: #E8E8EC;      /* body text */
+  --color-signal: #FF6B00;    /* safety orange */
+  --color-crit: #EF4444;      /* critical stock */
+  --color-ok: #10B981;        /* profit */
+}
+
+/* The cockpit layout (three columns) applies on desktop and on a landscape tablet or phone. */
+@custom-variant cockpit (@media (min-width: 1024px), (min-width: 800px) and (orientation: landscape));
+
+@layer base {
+  html, body { background: var(--color-ink); color: var(--color-bone); font-family: var(--font-sans); }
+  body { margin: 0; -webkit-tap-highlight-color: transparent; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--color-signal); outline-offset: 2px; }
+  input[type='date'] { color-scheme: dark; }
+}
+
+/* LED readout: monospace, tabular figures, a soft glow in the current colour (orange by default).
+   Lives in a layer so a text-ok / text-crit utility still wins over the default colour. */
+@layer components {
+  .num {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1, 'zero' 1;
+    letter-spacing: 0;
+    line-height: 1;
+    color: var(--color-signal);
+    text-shadow: 0 0 10px color-mix(in srgb, currentColor 35%, transparent);
+  }
+}
+
+/* Tick gauge: a machinist's scale. Fill colour comes from --g, the notch marks the alert level. */
+.gauge { position: relative; height: 12px; background: repeating-linear-gradient(90deg, var(--color-rule) 0 2px, transparent 2px 6px); }
+.gauge > i { position: absolute; inset: 0 auto 0 0; background: repeating-linear-gradient(90deg, var(--g, var(--color-ok)) 0 2px, transparent 2px 6px); transition: width 220ms ease-out; }
+.gauge > b { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--color-bone); opacity: 0.85; }
+
+/* The projects drawer on a portrait phone slides in from the left. */
+@keyframes drawer-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+.drawer-in { animation: drawer-in 180ms ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gauge > i { transition: none; }
+  .drawer-in { animation: none; }
+}
+
+@media print {
+  html, body { background: white !important; color: black !important; }
+}
